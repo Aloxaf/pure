@@ -118,6 +118,28 @@ prompt_pure_set_colors() {
 	done
 }
 
+function _fish_collapsed_pwd() {
+    if [[ "$PWD" == "$HOME" ]] {
+        echo "~"
+        return
+    } elif [[ "$PWD" == "/" ]] {
+        echo "/"
+        return
+    }
+    local pwd="${PWD/$HOME/~}"
+    local names=("${(s:/:)pwd}")
+    local length=${#names}
+    for i ({1..$[length-1]}) {
+        local name=$names[$i]
+        if [[ $name[1] == "." ]] {
+            names[$i]=$name[1,2]
+        } else {
+            names[$i]=$name[1]
+        }
+    }
+    echo ${(j:/:)names}
+}
+
 prompt_pure_preprompt_render() {
 	setopt localoptions noshwordsplit
 
@@ -130,7 +152,7 @@ prompt_pure_preprompt_render() {
 	local -a preprompt_parts
 
 	# Set the path.
-	preprompt_parts+=('%F{${prompt_pure_colors[path]}}%~%f')
+	preprompt_parts+=('%F{${prompt_pure_colors[path]}}$(_fish_collapsed_pwd)%f')
 
 	# Add Git branch and dirty status info.
 	typeset -gA prompt_pure_vcs_info
@@ -151,28 +173,11 @@ prompt_pure_preprompt_render() {
 	# Execution time.
 	[[ -n $prompt_pure_cmd_exec_time ]] && preprompt_parts+=('%F{$prompt_pure_colors[execution_time]}${prompt_pure_cmd_exec_time}%f')
 
-	local cleaned_ps1=$PROMPT
-	local -H MATCH MBEGIN MEND
-	if [[ $PROMPT = *$prompt_newline* ]]; then
-		# Remove everything from the prompt until the newline. This
-		# removes the preprompt and only the original PROMPT remains.
-		cleaned_ps1=${PROMPT##*${prompt_newline}}
-	fi
-	unset MATCH MBEGIN MEND
-
-	# Construct the new prompt with a clean preprompt.
-	local -ah ps1
-	ps1=(
-		${(j. .)preprompt_parts}  # Join parts, space separated.
-		$prompt_newline           # Separate preprompt and prompt.
-		$cleaned_ps1
-	)
-
-	PROMPT="${(j..)ps1}"
+	RPROMPT="${(j. .)preprompt_parts}"
 
 	# Expand the prompt for future comparision.
 	local expanded_prompt
-	expanded_prompt="${(S%%)PROMPT}"
+	expanded_prompt="${(S%%)RPROMPT}"
 
 	if [[ $1 == precmd ]]; then
 		# Initial newline, for spaciousness.
