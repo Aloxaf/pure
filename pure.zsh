@@ -659,11 +659,6 @@ prompt_pure_setup() {
 	# initialized via `promptinit`.
 	setopt noprompt{bang,cr,percent,subst} "prompt${^prompt_opts[@]}"
 
-	if [[ -z $prompt_newline ]]; then
-		# This variable needs to be set, usually set by promptinit.
-		typeset -g prompt_newline=$'\n%{\r%}'
-	fi
-
 	zmodload zsh/datetime
 	zmodload zsh/zle
 	zmodload zsh/parameter
