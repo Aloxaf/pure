@@ -120,7 +120,7 @@ prompt_pure_set_colors() {
 
 function _fish_collapsed_pwd() {
 	local pwd=${(D)PWD}
-	local names=(${(s:/:)pwd})
+	local names=("${(s:/:)pwd}")
 	for (( i=1; i<$#names; i++ )) {
 		local name=$names[$i]
 		if [[ $name[1] == "." ]] {
@@ -129,7 +129,7 @@ function _fish_collapsed_pwd() {
 			names[$i]=$name[1]
 		}
 	}
-	echo ${${(j:/:)names}:-/}
+	echo ${(j:/:)names}
 }
 
 prompt_pure_preprompt_render() {
