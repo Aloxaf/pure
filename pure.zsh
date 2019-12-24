@@ -119,25 +119,17 @@ prompt_pure_set_colors() {
 }
 
 function _fish_collapsed_pwd() {
-    if [[ "$PWD" == "$HOME" ]] {
-        echo "~"
-        return
-    } elif [[ "$PWD" == "/" ]] {
-        echo "/"
-        return
-    }
-    local pwd="${PWD/$HOME/~}"
-    local names=("${(s:/:)pwd}")
-    local length=${#names}
-    for i ({1..$[length-1]}) {
-        local name=$names[$i]
-        if [[ $name[1] == "." ]] {
-            names[$i]=$name[1,2]
-        } else {
-            names[$i]=$name[1]
-        }
-    }
-    echo ${(j:/:)names}
+	local pwd=${(D)PWD}
+	local names=(${(s:/:)pwd})
+	for (( i=1; i<$#names; i++ )) {
+		local name=$names[$i]
+		if [[ $name[1] == "." ]] {
+			names[$i]=$name[1,2]
+		} else {
+			names[$i]=$name[1]
+		}
+	}
+	echo ${${(j:/:)names}:-/}
 }
 
 prompt_pure_preprompt_render() {
