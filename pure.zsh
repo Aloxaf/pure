@@ -119,16 +119,16 @@ prompt_pure_set_colors() {
 }
 
 _fish_collapsed_pwd() {
-	local -a dirs=("${(s:/:)${(D)PWD}}")
+	local -a dirs=("${(s:/:)${(Q)${(D)PWD}}}")
 	for (( i=1; i<$#dirs; i++ )); do
 		local dir=$dirs[$i]
 		case $dir[1] in
-			".") dirs[i]=$dir[1,2] ;;
-			"~") (( i != 1 )) && dirs[i]=$dir[1] ;;
+			'.' | '\') dirs[i]=$dir[1,2] ;;
+			'~') (( i != 1 )) && dirs[i]=$dir[1] ;;
 			*) dirs[i]=$dir[1] ;;
 		esac
 	done
-	echo ${(j:/:)dirs}
+	echo -E ${(j:/:)dirs}
 }
 
 prompt_pure_preprompt_render() {
